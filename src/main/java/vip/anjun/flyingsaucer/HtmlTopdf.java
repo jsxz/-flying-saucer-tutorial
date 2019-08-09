@@ -1,7 +1,9 @@
 package vip.anjun.flyingsaucer;
 
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.pdf.BaseFont;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
@@ -11,8 +13,7 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 import java.io.*;
 import java.nio.file.FileSystems;
 
-import static com.itextpdf.text.pdf.BaseFont.EMBEDDED;
-import static com.itextpdf.text.pdf.BaseFont.IDENTITY_H;
+
 
 @Slf4j
 public class HtmlTopdf {
@@ -23,7 +24,7 @@ public class HtmlTopdf {
     }
 
 
-    private static void createPdf(String htmlStr,String out) {
+    private static void createPdf(String htmlFileName,String out) {
         ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
         templateResolver.setSuffix(".html");
         templateResolver.setTemplateMode("HTML");
@@ -32,7 +33,7 @@ public class HtmlTopdf {
         templateEngine.setTemplateResolver(templateResolver);
 
         Context context = new Context();
-        context.setVariable("name", "af");
+        context.setVariable("name", "中文");
 
 
         String renderedHtmlContent = templateEngine.process("template", context);
@@ -44,15 +45,22 @@ public class HtmlTopdf {
             String xHtml = convertToXhtml(renderedHtmlContent);
             outputStream = new FileOutputStream(out);
             ITextRenderer renderer = new ITextRenderer();
-//            renderer.getFontResolver().addFont("Code39.ttf", IDENTITY_H, EMBEDDED);
+            renderer.getFontResolver().addFont("SIMSUN.TTF", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
             String baseUrl = FileSystems
                     .getDefault()
                     .getPath("src", "main", "resources")
                     .toUri()
                     .toURL()
                     .toString();
+//            renderer.setDocumentFromString(xHtml, baseUrl);
 
-            renderer.setDocumentFromString(xHtml, baseUrl);
+            String htmlStr = FileUtils.readFileToString(new File(htmlFileName), "utf-8");
+
+            String s = convertToXhtml(htmlStr);
+            FileWriter fw = new FileWriter("test.html");
+            fw.write(s);
+            fw.close();
+            renderer.setDocumentFromString(s, baseUrl);
 
             renderer.layout();
             renderer.createPDF(outputStream);
