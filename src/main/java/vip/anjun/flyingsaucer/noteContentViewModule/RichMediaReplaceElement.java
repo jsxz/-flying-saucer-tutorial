@@ -1,10 +1,9 @@
 package vip.anjun.flyingsaucer.noteContentViewModule;
 
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Rectangle;
-import com.itextpdf.text.pdf.PdfAnnotation;
-import com.itextpdf.text.pdf.PdfContentByte;
-import com.itextpdf.text.pdf.PdfFileSpecification;
-import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.*;
 import org.xhtmlrenderer.layout.LayoutContext;
 import org.xhtmlrenderer.pdf.ITextOutputDevice;
 import org.xhtmlrenderer.pdf.ITextReplacedElement;
@@ -22,6 +21,7 @@ public class RichMediaReplaceElement implements ITextReplacedElement {
     }
 
     private Point _location = new Point(0, 0);
+
     @Override
     public void paint(RenderingContext c, ITextOutputDevice outputDevice, BlockBox box) {
         java.awt.Rectangle contentBounds = box.getContentAreaEdge(box.getAbsX(), box.getAbsY(), c);
@@ -32,13 +32,24 @@ public class RichMediaReplaceElement implements ITextReplacedElement {
         try {
             fs = PdfFileSpecification.fileEmbedded(writer, filePath, "foxdog.mpg", null);
             // 当前位置
+            int height1 = c.getPage().getHeight(c);
             float currentHeight = writer.getVerticalPosition(true);
             int height = box.getHeight();
-            writer.addAnnotation(PdfAnnotation.createScreen(writer,
-                    new Rectangle(contentBounds.x, currentHeight-contentBounds.height, 400f, currentHeight), "Fox and Dog", fs,
-                    "video/mpeg", true));
+            PdfAnnotation annotation = PdfAnnotation.createScreen(writer,
+                    new Rectangle(contentBounds.x, currentHeight - contentBounds.height, 400f, currentHeight), "Fox and Dog", fs,
+                    "video/mpeg", true);
+//            cb.addAnnotation(annotation,true);
+            writer.addAnnotation(annotation);
 
 
+            cb.setRGBColorStroke(0x00, 0x00, 0xFF);
+            cb.rectangle(100, 100, 100, 100);
+            cb.stroke();
+            cb.resetRGBColorStroke();
+
+            outputDevice.drawString("richmedia中文",contentBounds.x,contentBounds.y,null);
+
+            outputDevice.drawRect(contentBounds.x,contentBounds.y,2000,2000);
         } catch (IOException e) {
             e.printStackTrace();
         }

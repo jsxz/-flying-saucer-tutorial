@@ -2,7 +2,10 @@ body {
     font-family: SimSun;
     font-size: 12px;
 }
-
+enmedia{
+    width:200px;
+    height: 200px;
+}
 @page {
 
     @bottom-left {

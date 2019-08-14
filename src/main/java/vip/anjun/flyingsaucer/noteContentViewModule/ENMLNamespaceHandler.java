@@ -31,9 +31,13 @@ public  class ENMLNamespaceHandler implements NamespaceHandler {
 
     public String getNonCssStyling(Element e) {
         String toReturn = delegate.getNonCssStyling(e);
+
         if ("enmedia".equalsIgnoreCase(e.getNodeName())) {
-            toReturn = "display: block;";
+            String height ="height:"+ e.getAttribute("height")+";";
+            toReturn = "display:block;"+height;
+            System.out.println(toReturn);
         }
+
         return toReturn;
     }
 
